@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ImplementacaoDeProcedure.Data;
 using ImplementacaoDeProcedure.Models;
+using Microsoft.Data.SqlClient;
 
 namespace ImplementacaoDeProcedure.Controllers
 {
@@ -21,7 +22,9 @@ namespace ImplementacaoDeProcedure.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Produto.ToListAsync());
+            //return View(await _context.Produto.ToListAsync());
+            var list = await _context.Produto.FromSqlRaw("ConsultarTodos").ToListAsync();
+            return View(list);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -31,8 +34,12 @@ namespace ImplementacaoDeProcedure.Controllers
                 return NotFound();
             }
 
-            var produto = await _context.Produto
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var param = new SqlParameter("@id", id);
+
+            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+
+            //var produto = await _context.Produto
+            //    .FirstOrDefaultAsync(m => m.Id == id);
             if (produto == null)
             {
                 return NotFound();
@@ -65,7 +72,11 @@ namespace ImplementacaoDeProcedure.Controllers
                 return NotFound();
             }
 
-            var produto = await _context.Produto.FindAsync(id);
+            var param = new SqlParameter("@id", id);
+
+            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+
+            //var produto = await _context.Produto.FindAsync(id);
             if (produto == null)
             {
                 return NotFound();
@@ -112,8 +123,12 @@ namespace ImplementacaoDeProcedure.Controllers
                 return NotFound();
             }
 
-            var produto = await _context.Produto
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var param = new SqlParameter("@id", id);
+
+            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+
+            //var produto = await _context.Produto
+            //    .FirstOrDefaultAsync(m => m.Id == id);
             if (produto == null)
             {
                 return NotFound();
@@ -122,12 +137,15 @@ namespace ImplementacaoDeProcedure.Controllers
             return View(produto);
         }
 
-        // POST: Produto/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var produto = await _context.Produto.FindAsync(id);
+            var param = new SqlParameter("@id", id);
+
+            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+
+            //var produto = await _context.Produto.FindAsync(id);
             _context.Produto.Remove(produto);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -135,7 +153,12 @@ namespace ImplementacaoDeProcedure.Controllers
 
         private bool ProdutoExists(int id)
         {
-            return _context.Produto.Any(e => e.Id == id);
+            //return _context.Produto.Any(e => e.Id == id);
+            var param = new SqlParameter("@id", id);
+
+            var produto =  _context.Produto.FromSqlRaw("Consultar @id", param).Any();
+
+            return produto;
         }
     }
 }
