@@ -52,13 +52,18 @@ namespace ImplementacaoDeProcedure.Controllers
         {
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create( Produto produto)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(produto);
+                var param1 = new SqlParameter("@id", produto.Id);
+                var param2 = new SqlParameter("@nome", produto.Nome);
+
+                await _context.Database.ExecuteSqlRawAsync("Cadastro @id, @nome", param1, param2);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -97,7 +102,11 @@ namespace ImplementacaoDeProcedure.Controllers
             {
                 try
                 {
-                    _context.Update(produto);
+                    var param1 = new SqlParameter("@id", produto.Id);
+                    var param2 = new SqlParameter("@nome", produto.Nome);
+
+                    await _context.Database.ExecuteSqlRawAsync("Alterar @id, @nome", param1, param2);
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -144,9 +153,15 @@ namespace ImplementacaoDeProcedure.Controllers
             var param = new SqlParameter("@id", id);
 
             var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+            if (produto == null)
+            {
+                return NotFound();
+            }
+
+            await _context.Database.ExecuteSqlRawAsync("Excluir @id", param);
 
             //var produto = await _context.Produto.FindAsync(id);
-            _context.Produto.Remove(produto);
+            //_context.Produto.Remove(produto);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
