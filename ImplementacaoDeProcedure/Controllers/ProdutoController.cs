@@ -27,7 +27,7 @@ namespace ImplementacaoDeProcedure.Controllers
             return View(list);
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id)
         {
             if (id == null)
             {
@@ -36,10 +36,8 @@ namespace ImplementacaoDeProcedure.Controllers
 
             var param = new SqlParameter("@id", id);
 
-            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+            var produto = _context.Produto.FromSqlRaw("Consultar @id", param).IgnoreQueryFilters().AsNoTracking().AsEnumerable().FirstOrDefault();
 
-            //var produto = await _context.Produto
-            //    .FirstOrDefaultAsync(m => m.Id == id);
             if (produto == null)
             {
                 return NotFound();
@@ -70,7 +68,7 @@ namespace ImplementacaoDeProcedure.Controllers
             return View(produto);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        public IActionResult Edit(int? id)
         {
             if (id == null)
             {
@@ -79,13 +77,13 @@ namespace ImplementacaoDeProcedure.Controllers
 
             var param = new SqlParameter("@id", id);
 
-            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+            var produto = _context.Produto.FromSqlRaw("Consultar @id", param).IgnoreQueryFilters().AsNoTracking().AsEnumerable().FirstOrDefault();
 
-            //var produto = await _context.Produto.FindAsync(id);
             if (produto == null)
             {
                 return NotFound();
             }
+
             return View(produto);
         }
 
@@ -105,7 +103,7 @@ namespace ImplementacaoDeProcedure.Controllers
                     var param1 = new SqlParameter("@id", produto.Id);
                     var param2 = new SqlParameter("@nome", produto.Nome);
 
-                    await _context.Database.ExecuteSqlRawAsync("Alterar @id, @nome", param1, param2);
+                    await _context.Database.ExecuteSqlRawAsync("EXEC Alterar @id, @nome", param1, param2);
 
                     await _context.SaveChangesAsync();
                 }
@@ -125,7 +123,7 @@ namespace ImplementacaoDeProcedure.Controllers
             return View(produto);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
             if (id == null)
             {
@@ -134,10 +132,8 @@ namespace ImplementacaoDeProcedure.Controllers
 
             var param = new SqlParameter("@id", id);
 
-            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+            var produto = _context.Produto.FromSqlRaw("Consultar @id", param).IgnoreQueryFilters().AsNoTracking().AsEnumerable().FirstOrDefault();
 
-            //var produto = await _context.Produto
-            //    .FirstOrDefaultAsync(m => m.Id == id);
             if (produto == null)
             {
                 return NotFound();
@@ -152,7 +148,7 @@ namespace ImplementacaoDeProcedure.Controllers
         {
             var param = new SqlParameter("@id", id);
 
-            var produto = await _context.Produto.FromSqlRaw("Consultar @id", param).FirstOrDefaultAsync();
+            var produto = _context.Produto.FromSqlRaw("Consultar @id", param).IgnoreQueryFilters().AsNoTracking().AsEnumerable().FirstOrDefault();
             if (produto == null)
             {
                 return NotFound();
@@ -160,8 +156,8 @@ namespace ImplementacaoDeProcedure.Controllers
 
             await _context.Database.ExecuteSqlRawAsync("Excluir @id", param);
 
-            //var produto = await _context.Produto.FindAsync(id);
-            //_context.Produto.Remove(produto);
+           
+           
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
